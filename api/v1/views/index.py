@@ -6,11 +6,13 @@ from api.v1.views import app_views
 from models.engine.db_storage import classes
 # from models import storage
 
+
 @app_views.route("/status",
                  strict_slashes=False)
 def status():
     """ return the status of The API """
     return jsonify({"status": "OK"})
+
 
 @app_views.route("/stats",
                  strict_slashes=False)
