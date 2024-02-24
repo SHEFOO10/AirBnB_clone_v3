@@ -63,7 +63,7 @@ def update_state(state_id):
     if state is None:
         abort(404, "Not found")
     try:
-        if not request.json:
+        if not request.get_json():
             abort(400, description="Not a JSON")
         changes = request.get_json()
         for key, value in changes.items():
