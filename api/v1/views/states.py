@@ -65,8 +65,6 @@ def update_state(state_id):
     if state is None:
         return jsonify({"error": "Not found"}), 404
     try:
-        if not request.get_json():
-            return jsonify({"error": "Not a JSON"}), 400
         changes = request.get_json()
         for key, value in changes.items():
             if key not in ['id', 'created_at', 'updated_at']:
@@ -74,5 +72,4 @@ def update_state(state_id):
         state.save()
         return jsonify(state.to_dict()), 200
     except Exception as e:
-        print("An error occurred during state deletion:", e)
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": "Not a JSON"}), 400
