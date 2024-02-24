@@ -3,7 +3,6 @@
 from flask import Flask, request, abort, jsonify
 from api.v1.views import app_views
 from models.state import State
-from models.city import City
 from models import storage
 
 
@@ -47,7 +46,7 @@ def delete_state_byID(state_id):
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def post_state():
     """Creates a State"""
-    if not request.json:
+    if not request.get_json():
         abort(400, description="Not a JSON")
     obj = request.get_json()
     if 'name' not in obj:
