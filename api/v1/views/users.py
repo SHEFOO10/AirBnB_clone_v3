@@ -6,7 +6,7 @@ from models.user import User
 from models import storage
 
 
-@app_views.route('/users',
+@app_views.route('/users', methods=['GET'],
                  strict_slashes=False)
 def get_users():
     """ list all User objects """
@@ -15,7 +15,7 @@ def get_users():
     return jsonify(users)
 
 
-@app_views.route('/users/<user_id>',
+@app_views.route('/users/<user_id>', methods=['GET'],
                  strict_slashes=False)
 def get_user(user_id):
     """ get User object with the given id """
@@ -30,20 +30,22 @@ def get_user(user_id):
 def delete_user(user_id):
     """ delete User object """
     user = storage.get(User, user_id)
-    print(user)
     if user is None:
         return jsonify({"error": "Not found"}), 404
     try:
         for place in user.places:
+            for review in place.reviews:
+                storage.delete(review)
+            for amenity in place.amenities:
+                storage.delete(amenity)
             storage.delete(place)
         for review in user.reviews:
             storage.delete(review)
         storage.delete(user)
         storage.save()
+        return jsonify({}), 200
     except Exception as e:
-        print(e)
         return jsonify({"error": "Internal Server Error"}), 500
-    return jsonify({}), 200
 
 
 @app_views.route('/users', methods=['POST'],
@@ -51,14 +53,14 @@ def delete_user(user_id):
 def create_user():
     """ Create User """
     try:
-        obj = request.get_json()
+        changes = request.get_json()
     except Exception:
         return jsonify({"error": "Not a JSON"}), 400
-    if 'email' not in obj:
+    if 'email' not in changes:
         return jsonify({"error": "Missing email"}), 400
-    if 'password' not in obj:
+    if 'password' not in changes:
         return jsonify({"error": "Missing password"}), 400
-    user = User(**obj)
+    user = User(**changes)
     user.save()
     return jsonify(user.to_dict()), 201
 
@@ -74,10 +76,10 @@ def update_user(user_id):
         changes = request.get_json()
     except Exception:
         return jsonify({"error": "Not a JSON"}), 400
-    for key, value in changes.items():
-        if key not in ['id', 'email', 'created_at', 'updated_at']:
-            setattr(user, key, value)
     try:
+        for key, value in changes.items():
+            if key not in ['id', 'email', 'created_at', 'updated_at']:
+                setattr(user, key, value)
         user.save()
     except Exception:
         return jsonify({"error": "Internal Server Error"}), 500
