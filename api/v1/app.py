@@ -6,8 +6,8 @@ import os
 from models import storage
 from api.v1.views import app_views
 
-host = os.environ['HBNB_API_HOST']
-port = os.environ['HBNB_API_PORT']
+host = os.environ.get('HBNB_API_HOST', '0.0.0.0')
+port = int(os.environ.get('HBNB_API_PORT', 5000))
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
