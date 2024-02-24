@@ -12,7 +12,7 @@ def get_cities(state_id):
     """Retrieves the list of all cities in state"""
     state = storage.get('State', state_id)
     if state is None:
-        abort(404, "Not found")
+        return jsonify({"error": "Not found"}), 404
     cities = []
     for city in state.cities:
         cities.append(city.to_dict())
@@ -25,7 +25,7 @@ def get_city(city_id):
     """Retrieves a City object by id"""
     city = storage.get('City', city_id)
     if city is None:
-        abort(404, "Not found")
+        return jsonify({"error": "Not found"}), 404
     return jsonify(city.to_dict())
 
 
@@ -35,7 +35,7 @@ def delete_city(city_id):
     """Deletes a City object by ID"""
     city = storage.get('City', city_id)
     if city is None:
-        abort(404, "Not found")
+        return jsonify({"error": "Not found"}), 404
     for place in city.places:
         place.delete()
     city.delete()
@@ -49,12 +49,13 @@ def add_city_to_state(state_id):
     """adding city"""
     state = storage.get('State', state_id)
     if state is None:
-        abort(404, "Not found")
-    if not request.get_json():
-        abort(400, "Not a JSON")
-    req = request.get_json()
+        return jsonify({"error": "Not found"}), 404
+    try:
+        req = request.get_json()
+    except Exception:
+        return jsonify({"error": "Not a JSON"}), 400
     if 'name' not in req:
-        abort(400, "Missing name")
+        return jsonify({"error": "Missing name"}), 400
     city = City(**req)
     city.state_id = state_id
     city.save()
@@ -66,11 +67,12 @@ def update_city(city_id):
     """changes in city"""
     city = storage.get('City', city_id)
     if city is None:
-        abort(404, "Not found")
-    if not request.get_json():
-        abort(400, "Not a JSON")
-    for key, value in request.get_json().items():
-        if key not in ['id', 'state_id', 'created_at', 'updated_at']:
-            setattr(city, key, value)
+        return jsonify({"error": "Not found"}), 404
+    try:
+        for key, value in request.get_json().items():
+            if key not in ['id', 'state_id', 'created_at', 'updated_at']:
+                setattr(city, key, value)
+    except Exception:
+        return jsonify({"error": "Not a JSON"}), 400
     city.save()
     return jsonify(city.to_dict()), 200
