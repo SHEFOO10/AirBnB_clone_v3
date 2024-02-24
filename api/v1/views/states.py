@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """view for State objects that handles all default RESTFul API actions"""
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, jsonify
 from api.v1.views import app_views
 from models.state import State
 from models import storage
@@ -19,7 +19,7 @@ def get_state_byID(state_id):
     """Retrieves a State object by id"""
     state = storage.get('State', state_id)
     if state is None:
-        abort(404, "Not found")
+        return jsonify({"error": "Not found"}), 404
     return jsonify(state.to_dict())
 
 
@@ -29,7 +29,7 @@ def delete_state_byID(state_id):
     """Deletes a State object by id"""
     state = storage.get('State', state_id)
     if state is None:
-        abort(404, "Not found")
+        return jsonify({"error": "Not found"}), 404
     try:
         for city in state.cities:
             for place in city.places:
@@ -46,11 +46,13 @@ def delete_state_byID(state_id):
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def post_state():
     """Creates a State"""
-    if not request.get_json():
-        abort(400, description="Not a JSON")
-    obj = request.get_json()
+    try:
+        obj = request.get_json()
+    except Exception:
+        return jsonify({"error": "Not a JSON"}), 400
+
     if 'name' not in obj:
-        abort(400, description="Missing name")
+        return jsonify({"error": "Missing name"}), 400
     state = State(**obj)
     state.save()
     return jsonify(state.to_dict()), 201
@@ -61,10 +63,10 @@ def update_state(state_id):
     """Updates a State object by id"""
     state = storage.get('State', state_id)
     if state is None:
-        abort(404, "Not found")
+        return jsonify({"error": "Not found"}), 404
     try:
         if not request.get_json():
-            abort(400, description="Not a JSON")
+            return jsonify({"error": "Not a JSON"}), 400
         changes = request.get_json()
         for key, value in changes.items():
             if key not in ['id', 'created_at', 'updated_at']:
