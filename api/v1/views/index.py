@@ -7,7 +7,6 @@ from models.engine.db_storage import classes
 from models import storage
 
 
-
 @app_views.route("/status",
                  strict_slashes=False)
 def status():
@@ -19,8 +18,12 @@ def status():
                  strict_slashes=False)
 def stats():
     """ retrieves the number of each objects by type """
-    class_plural = {"Amenity": 'amenities', "City": 'cities',
-           "Place": 'places', "Review": 'reviews', "State": 'states', "User": 'users'}
+    class_plural = {"Amenity": 'amenities',
+                    "City": 'cities',
+                    "Place": 'places',
+                    "Review": 'reviews',
+                    "State": 'states',
+                    "User": 'users'}
     stats = {}
     for cls_name, cls in classes.items():
         stats.update({class_plural[cls_name]: storage.count(cls)})
