@@ -7,7 +7,7 @@ from models import storage
 
 
 @app_views.route('/states', methods=['GET'], strict_slashes=False)
-def get_status():
+def get_states():
     """Retrieves the list of all State"""
     states = storage.all('State').values()
     states = [state.to_dict() for state in states]
@@ -47,13 +47,13 @@ def delete_state_byID(state_id):
 def post_state():
     """Creates a State"""
     try:
-        obj = request.get_json()
+        changes = request.get_json()
     except Exception:
         return jsonify({"error": "Not a JSON"}), 400
 
-    if 'name' not in obj:
+    if 'name' not in changes:
         return jsonify({"error": "Missing name"}), 400
-    state = State(**obj)
+    state = State(**changes)
     state.save()
     return jsonify(state.to_dict()), 201
 
@@ -71,5 +71,5 @@ def update_state(state_id):
                 setattr(state, key, value)
         state.save()
         return jsonify(state.to_dict()), 200
-    except Exception as e:
+    except Exception:
         return jsonify({"error": "Not a JSON"}), 400
