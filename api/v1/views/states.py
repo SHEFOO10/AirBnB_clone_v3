@@ -3,6 +3,7 @@
 from flask import Flask, request, abort, jsonify
 from api.v1.views import app_views
 from models.state import State
+from models.city import City
 from models import storage
 
 
@@ -27,16 +28,50 @@ def get_state_byID(state_id):
                  methods=['DELETE'], strict_slashes=False)
 def delete_state_byID(state_id):
     """Deletes a State object by id"""
-    pass
+    state = storage.get('State', state_id)
+    if state is None:
+        abort(404, "Not found")
+    try:
+        for city in state.cities:
+            for place in city.places:
+                storage.delete(place)
+            storage.delete(city)
+        storage.delete(state)
+        storage.save()
+        return jsonify({}), 200
+    except Exception as e:
+        print("An error occurred during state deletion:", e)
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def post_state():
     """Creates a State"""
-    pass
+    if not request.json:
+        abort(400, description="Not a JSON")
+    obj = request.get_json()
+    if 'name' not in obj:
+        abort(400, description="Missing name")
+    state = State(**obj)
+    state.save()
+    return jsonify(state.to_dict()), 201
 
 
-@app_views.route('/states/<state_id>', methods=['POST'],  strict_slashes=False)
+@app_views.route('/states/<state_id>', methods=['PUT'],  strict_slashes=False)
 def update_state(state_id):
     """Updates a State object by id"""
-    pass
+    state = storage.get('State', state_id)
+    if state is None:
+        abort(404, "Not found")
+    try:
+        if not request.json:
+            abort(400, description="Not a JSON")
+        changes = request.get_json()
+        for key, value in changes.items():
+            if key not in ['id', 'created_at', 'updated_at']:
+                setattr(state, key, value)
+        state.save()
+        return jsonify(state.to_dict()), 200
+    except Exception as e:
+        print("An error occurred during state deletion:", e)
+        return jsonify({"error": "Internal server error"}), 500
