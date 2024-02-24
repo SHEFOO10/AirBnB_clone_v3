@@ -118,6 +118,12 @@ class TestFileStorage(unittest.TestCase):
     def test_get(self):
         """ Test that get properly gets object with the given id """
         storage = FileStorage()
+        # create new object if file.json don't exist
+        new_state = State()
+        storage.new(new_state)
+        storage.save()
+        storage.reload()
+
         obj = list(storage.all().values())[0]
         test_obj = storage.get(obj.__class__, obj.id)
         self.assertIs(obj, test_obj)
