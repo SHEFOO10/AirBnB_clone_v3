@@ -33,8 +33,6 @@ def delete_user(user_id):
         for place in user.places:
             for review in place.reviews:
                 storage.delete(review)
-            for amenity in place.amenities:
-                storage.delete(amenity)
             storage.delete(place)
         for review in user.reviews:
             storage.delete(review)
