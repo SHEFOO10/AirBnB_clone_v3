@@ -6,8 +6,7 @@ from models.user import User
 from models import storage
 
 
-@app_views.route('/users', methods=['GET'],
-                 strict_slashes=False)
+@app_views.route('/users', methods=['GET'], strict_slashes=False)
 def get_users():
     """ list all User objects """
     users = storage.all('User').values()
@@ -15,24 +14,30 @@ def get_users():
     return jsonify(users)
 
 
-@app_views.route('/users/<user_id>', methods=['GET'],
-                 strict_slashes=False)
+@app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 def get_user(user_id):
     """ get User object with the given id """
-    user = storage.get('User', user_id)
+    user = storage.get(User, user_id)
     if user is None:
         return jsonify({"error": "Not found"}), 404
     return jsonify(user.to_dict())
 
 
-@app_views.route('/users/<user_id>', methods=['DELETE'],
-                 strict_slashes=False)
+@app_views.route('/users/<user_id>', methods=['DELETE'], strict_slashes=False)
 def delete_user(user_id):
     """ delete User object """
     user = storage.get('User', user_id)
     if user is None:
         return jsonify({"error": "Not found"}), 404
     try:
+        for place in user.places:
+            for review in place.reviews:
+                storage.delete(review)
+            for amenity in place.amenities:
+                storage.delete(amenity)
+            storage.delete(place)
+        for review in user.reviews:
+            storage.delete(review)
         storage.delete(user)
         storage.save()
         return jsonify({}), 200
