@@ -68,9 +68,8 @@ def update_user(user_id):
     user = storage.get(User, user_id)
     if user is None:
         return jsonify({"error": "Not found"}), 404
-    try:
-        changes = request.get_json()
-    except Exception:
+    changes = request.get_json(silent=True, force=True)
+    if not changes:
         return jsonify({"error": "Not a JSON"}), 400
     try:
         for key, value in changes.items():
