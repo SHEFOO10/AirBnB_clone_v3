@@ -19,7 +19,7 @@ def get_users():
                  strict_slashes=False)
 def get_user(user_id):
     """ get User object with the given id """
-    user = storage.get(User, user_id)
+    user = storage.get('User', user_id)
     if user is None:
         return jsonify({"error": "Not found"}), 404
     return jsonify(user.to_dict())
@@ -29,18 +29,10 @@ def get_user(user_id):
                  strict_slashes=False)
 def delete_user(user_id):
     """ delete User object """
-    user = storage.get(User, user_id)
+    user = storage.get('User', user_id)
     if user is None:
         return jsonify({"error": "Not found"}), 404
     try:
-        for place in user.places:
-            for review in place.reviews:
-                storage.delete(review)
-            for amenity in place.amenities:
-                storage.delete(amenity)
-            storage.delete(place)
-        for review in user.reviews:
-            storage.delete(review)
         storage.delete(user)
         storage.save()
         return jsonify({}), 200
@@ -78,7 +70,7 @@ def update_user(user_id):
         return jsonify({"error": "Not a JSON"}), 400
     try:
         for key, value in changes.items():
-            if key not in ['id', 'email', 'created_at', 'updated_at']:
+            if key in ['password', 'first_name', 'last_name']:
                 setattr(user, key, value)
         user.save()
     except Exception:
