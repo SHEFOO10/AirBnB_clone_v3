@@ -46,9 +46,9 @@ def delete_state_byID(state_id):
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def post_state():
     """Creates a State"""
-    try:
-        changes = request.get_json()
-    except Exception:
+
+    changes = request.get_json(force=True, silent=True)
+    if not changes:
         return jsonify({"error": "Not a JSON"}), 400
 
     if 'name' not in changes:
@@ -64,12 +64,12 @@ def update_state(state_id):
     state = storage.get('State', state_id)
     if state is None:
         return jsonify({"error": "Not found"}), 404
-    try:
-        changes = request.get_json()
-        for key, value in changes.items():
-            if key not in ['id', 'created_at', 'updated_at']:
-                setattr(state, key, value)
-        state.save()
-        return jsonify(state.to_dict()), 200
-    except Exception:
+
+    changes = request.get_json()
+    if not changes:
         return jsonify({"error": "Not a JSON"}), 400
+    for key, value in changes.items():
+        if key not in ['id', 'created_at', 'updated_at']:
+            setattr(state, key, value)
+    state.save()
+    return jsonify(state.to_dict()), 200
