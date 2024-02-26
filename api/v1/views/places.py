@@ -66,10 +66,10 @@ def update_place(place_id):
     """ Updates a Place object """
     place = storage.get('Place', place_id)
     if place is None:
-        return jsonify({"error": "Not found"})
+        return jsonify({"error": "Not found"}), 404
     changes = request.get_json(force=True, silent=True)
     if not changes:
-        return jsonify({"error": "Not a JSON"})
+        return jsonify({"error": "Not a JSON"}), 400
     print(changes)
     for key, value in changes.items():
         if key in ['name',
