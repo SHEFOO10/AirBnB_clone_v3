@@ -57,20 +57,3 @@ def create_review(place_id):
     new_review = Review(**query_parameters)
     new_review.save()
     return jsonify(new_review.to_dict()), 201
-
-
-@app_views.route('/reviews/<review_id>',
-                 strict_slashes=False, methods=['PUT'])
-def update_review(review_id):
-    """ Updates a Review object """
-    review = storage.get('Review', review_id)
-    if review is None:
-        return jsonify({"error": "Not found"}), 404
-    changes = request.get_json(force=True, silent=True)
-    if not changes:
-        return jsonify({"error": "Not a JSON"}), 400
-    for key, value in changes.items():
-        if key in ['text']:
-            setattr(review, key, value)
-    review.save()
-    return jsonify(review.to_dict()), 200
