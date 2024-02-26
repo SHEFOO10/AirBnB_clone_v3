@@ -47,14 +47,14 @@ def delete_user(user_id):
                  strict_slashes=False)
 def create_user():
     """ Create User """
-    changes = request.get_json(silent=True, force=True)
-    if not changes:
+    query_parameters = request.get_json(silent=True, force=True)
+    if not query_parameters:
         return jsonify({"error": "Not a JSON"}), 400
-    if 'email' not in changes:
+    if 'email' not in query_parameters:
         return jsonify({"error": "Missing email"}), 400
-    if 'password' not in changes:
+    if 'password' not in query_parameters:
         return jsonify({"error": "Missing password"}), 400
-    user = User(**changes)
+    user = User(**query_parameters)
     user.save()
     return jsonify(user.to_dict()), 201
 
