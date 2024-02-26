@@ -53,7 +53,8 @@ def create_review(place_id):
         return jsonify({"error": "Missing user_id"}), 400
     if 'text' not in query_parameters:
         return jsonify({"error": "Missing text"})
-    new_review = Review(**query_parameters, place_id=place.id)
+    query_parameters.update({"place_id": place_id})
+    new_review = Review(**query_parameters)
     new_review.save()
     return jsonify(new_review.to_dict()), 201
 
