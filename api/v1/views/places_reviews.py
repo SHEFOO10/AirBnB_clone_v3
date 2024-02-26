@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 """view for Review object that handles all default RESTFul API"""
-from flask import jsonify, request
-from models.review import Review
+from flask import request, jsonify
 from api.v1.views import app_views
+from models.review import Review
 from models import storage
 
 
