@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """view for State objects that handles all default RESTFul API actions"""
-from flask import Flask, request, jsonify
+from flask import abort, request, jsonify
 from api.v1.views import app_views
 from models.state import State
 from models import storage
@@ -19,7 +19,7 @@ def get_state_byID(state_id):
     """Retrieves a State object by id"""
     state = storage.get('State', state_id)
     if state is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     return jsonify(state.to_dict())
 
 
@@ -29,7 +29,7 @@ def delete_state_byID(state_id):
     """Deletes a State object by id"""
     state = storage.get('State', state_id)
     if state is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     try:
         for city in state.cities:
             for place in city.places:
@@ -49,10 +49,9 @@ def post_state():
 
     changes = request.get_json(force=True, silent=True)
     if not changes:
-        return jsonify({"error": "Not a JSON"}), 400
-
+        abort(400, "Not a JSON")
     if 'name' not in changes:
-        return jsonify({"error": "Missing name"}), 400
+        abort(400, "Missing name")
     state = State(**changes)
     state.save()
     return jsonify(state.to_dict()), 201
@@ -63,10 +62,10 @@ def update_state(state_id):
     """Updates a State object by id"""
     state = storage.get('State', state_id)
     if state is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     changes = request.get_json(force=True, silent=True)
     if not changes:
-        return jsonify({"error": "Not a JSON"}), 400
+        abort(400, "Not a JSON")
     for key, value in changes.items():
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(state, key, value)
