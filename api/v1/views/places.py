@@ -54,7 +54,7 @@ def create_place(city_id):
     if user is None:
         return jsonify({"error": "Not found"}), 404
     if 'name' not in query_parameters:
-        return jsonify({"error": "Missing name"})
+        return jsonify({"error": "Missing name"}), 400
     query_parameters.update({"city_id": city_id})
     new_place = Place(**query_parameters)
     new_place.save()
