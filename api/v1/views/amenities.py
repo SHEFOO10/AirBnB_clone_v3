@@ -20,7 +20,7 @@ def get_amenity(amenity_id):
     """Retrieves a Amenity object by id"""
     amenity = storage.get('Amenity', amenity_id)
     if amenity is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     return jsonify(amenity.to_dict())
 
 
@@ -30,7 +30,7 @@ def delete(amenity_id):
     """delete amenity by id"""
     amenity = storage.get('Amenity', amenity_id)
     if amenity is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     storage.delete(amenity)
     storage.save()
     return jsonify({}), 200
@@ -42,9 +42,9 @@ def create():
     try:
         req = request.get_json()
     except Exception:
-        return jsonify({"error": "Not a JSON"}), 400
+        abort(400, "Not a JSON")
     if 'name' not in req:
-        return jsonify({"error": "Missing name"}), 400
+        abort(400, "Missing name")
     amenity = Amenity(**req)
     amenity.save()
     return jsonify(amenity.to_dict()), 201
@@ -56,12 +56,12 @@ def update(amenity_id):
     """Updates a Amenity object by id"""
     amenity = storage.get('Amenity', amenity_id)
     if amenity is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
 
     try:
         req = request.get_json()
     except Exception:
-        return jsonify({"error": "Not a JSON"}), 400
+        abort(400, "Not a JSON")
     for key, value in req.items():
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(amenity, key, value)
