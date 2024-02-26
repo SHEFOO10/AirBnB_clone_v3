@@ -51,6 +51,9 @@ def create_review(place_id):
         return jsonify({"error": "Not a JSON"}), 400
     if 'user_id' not in query_parameters:
         return jsonify({"error": "Missing user_id"}), 400
+    user = storage.get('User', query_parameters.get('user_id'))
+    if user is None:
+        return jsonify({"error": "Not found"}), 404
     if 'text' not in query_parameters:
         return jsonify({"error": "Missing text"}), 400
     query_parameters.update({"place_id": place_id})
