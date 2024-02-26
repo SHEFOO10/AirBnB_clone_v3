@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """ view for User objects that handles all default RESTFul API actions """
-from flask import Flask, request, jsonify
+from flask import request, jsonify, abort
 from api.v1.views import app_views
 from models.user import User
 from models import storage
@@ -19,7 +19,7 @@ def get_user(user_id):
     """ get User object with the given id """
     user = storage.get(User, user_id)
     if user is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     return jsonify(user.to_dict())
 
 
@@ -28,7 +28,7 @@ def delete_user(user_id):
     """ delete User object """
     user = storage.get('User', user_id)
     if user is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     try:
         for place in user.places:
             for review in place.reviews:
@@ -49,11 +49,11 @@ def create_user():
     """ Create User """
     query_parameters = request.get_json(silent=True, force=True)
     if not query_parameters:
-        return jsonify({"error": "Not a JSON"}), 400
+        abort(400, "Not a JSON")
     if 'email' not in query_parameters:
-        return jsonify({"error": "Missing email"}), 400
+        abort(400, "Missing email")
     if 'password' not in query_parameters:
-        return jsonify({"error": "Missing password"}), 400
+        abort(400, "Missing password")
     user = User(**query_parameters)
     user.save()
     return jsonify(user.to_dict()), 201
@@ -65,10 +65,10 @@ def update_user(user_id):
     """ Updates User object """
     user = storage.get(User, user_id)
     if user is None:
-        return jsonify({"error": "Not found"}), 404
+        abort(404)
     changes = request.get_json(silent=True, force=True)
     if not changes:
-        return jsonify({"error": "Not a JSON"}), 400
+        abort(400, "Not a JSON")
     try:
         for key, value in changes.items():
             if key in ['password', 'first_name', 'last_name']:
