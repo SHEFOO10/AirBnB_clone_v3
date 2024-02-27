@@ -86,5 +86,7 @@ def place_amenity(place_id, amenity_id):
                 found = True
         if found is False:
             place.amenities.append(amenity)
+        else:
+            return jsonify(amenity.to_dict()), 200
     place.save()
     return jsonify(amenity.to_dict()), 201
