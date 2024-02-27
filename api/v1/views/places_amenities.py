@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-""" a view for the link between Place objects and Amenity objects that handles all default RESTFul API """
+"""
+    a view for the link between Place objects
+    and Amenity objects that handles all default RESTFul API
+"""
 from flask import request, abort, jsonify
 from models.amenity import Amenity
 from models.place import Place
@@ -15,7 +18,8 @@ def get_place_amenities(place_id):
     if place is None:
         abort(404)
     if storage_t != 'db':
-        amenities = [storage.get('Amenity', amenity).to_dict() for amenity in place.amenities]
+        amenities = [storage.get('Amenity', amenity).to_dict()
+                     for amenity in place.amenities]
     else:
         amenities = [amenity.to_dict() for amenity in place.amenities]
     return jsonify(amenities), 200
