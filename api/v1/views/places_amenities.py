@@ -50,6 +50,10 @@ def delete_amenity(place_id, amenity_id):
         for amenity in place.amenities:
             if amenity.id != amenity_id:
                 new_amenities_list.append(amenity)
+            else:
+                found = True
+        if found is False:
+            abort(404)
         place.amenities = new_amenities_list
     place.save()
     return jsonify({}), 200
