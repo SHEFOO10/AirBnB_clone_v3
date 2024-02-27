@@ -93,7 +93,7 @@ class FileStorage:
         for clss in classes:
             if cls is classes[clss] or cls is clss:
                 try:
-                    obj = self.__objects[cls.__name__ + '.' + id]
+                    obj = self.__objects[(cls.__name__ if type(cls) is not str else cls) + '.' + id]
                     return obj
                 except KeyError:
                     return None

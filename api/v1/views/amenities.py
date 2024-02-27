@@ -39,9 +39,8 @@ def delete(amenity_id):
 @app_views.route('/amenities', methods=['POST'], strict_slashes=False)
 def create():
     """ Create Amenity Record """
-    try:
-        req = request.get_json()
-    except Exception:
+    req = request.get_json(silent=True, force=True)
+    if not req:
         abort(400, "Not a JSON")
     if 'name' not in req:
         abort(400, "Missing name")

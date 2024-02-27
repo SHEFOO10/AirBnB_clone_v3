@@ -49,6 +49,7 @@ class Place(BaseModel, Base):
         latitude = 0.0
         longitude = 0.0
         amenity_ids = []
+        review_ids = []
 
     def __init__(self, *args, **kwargs):
         """initializes Place"""
@@ -58,7 +59,10 @@ class Place(BaseModel, Base):
         @property
         def reviews(self):
             """getter attribute returns the list of Review instances"""
+            from models import storage_t
             from models.review import Review
+            if storage_t != 'db':
+                return self.review_ids
             review_list = []
             all_reviews = models.storage.all(Review)
             for review in all_reviews.values():
@@ -69,7 +73,10 @@ class Place(BaseModel, Base):
         @property
         def amenities(self):
             """getter attribute returns the list of Amenity instances"""
+            from models import storage_t
             from models.amenity import Amenity
+            if storage_t != 'db':
+                return self.amenity_ids
             amenity_list = []
             all_amenities = models.storage.all(Amenity)
             for amenity in all_amenities.values():
