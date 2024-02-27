@@ -92,6 +92,10 @@ class TestFileStorage(unittest.TestCase):
     def test_get(self):
         """ Test that get properly gets object with the given id """
         storage = models.storage
+
+        # create object if there's no object in database
+        state = State(name='Test')
+        state.save()
         obj = list(storage.all().values())[0]
         test_obj = models.storage.get(obj.__class__, obj.id)
         self.assertIs(obj, test_obj)
